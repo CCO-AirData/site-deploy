@@ -223,6 +223,8 @@
     //pegando os perâmetros da URL
     const urlParams = new URLSearchParams(window.location.search);
     const idMaquina = urlParams.get('idMaquina');
+    //sim, a próxima linha é redundante. Se você removê-lá, entretanto, você quebrará todo o sistema
+    sessionStorage.MAC_SERVIDOR = idMaquina;
     //old: const idMaquina = sessionStorage.MAC_SERVIDOR;
     validarUrlAcesso()
 
@@ -230,11 +232,7 @@
     function validarUrlAcesso() {
         //verificando se estou logado
         if (sessionStorage.ID_USUARIO == undefined) {
-            let sendTo = `../sing-in.html?urlAfterLogin=dashboard.html&idMaquina=${idMaquina}`;
-            if(urlParams.has('origin')){
-                sendTo += `&origin=${urlParams.get('origin')}`
-            }
-            window.location.href = sendTo;
+            window.location.href = `../sing-in.html?urlAfterLogin=dashboard.html&idMaquina=${idMaquina}`;
         }
         //verificando acesso à máquina
         validarAcesso().then(acesso => {
