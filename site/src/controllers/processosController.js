@@ -28,12 +28,14 @@ function receberDadosProcessos(req, res) {
 }
 
 function deletarProcesso(req, res) {
-    let pid = req.body.pidServer;
-    console.log(`Meu amigo pid ${pid}`)
+    var pid = req.body.pidServer;
+    var fkServidor = req.body.fkServidorServer;
     if (pid == undefined) {
         res.status(400).send("O pid está undefined!");
+    } else if (fkServidor == undefined) {
+        res.status(400).send("O fkServidor está undefined!");
     } else {
-        processosModel.deletarProcesso(pid).then(function (resposta) {
+        processosModel.deletarProcesso(pid, fkServidor).then(function (resposta) {
             res.json(resposta);
         }).catch(
             function (erro) {
@@ -47,7 +49,57 @@ function deletarProcesso(req, res) {
 
 }
 
+function proibirProcesso(req, res) {
+    var nomeProcesso = req.body.nomeProcessoServer;
+    var fkServidor = req.body.fkServidorServer;
+    console.log(`Meu amigo nomeProcesso ${nomeProcesso}`)
+    console.log(`Meu amigo fkServidor ${fkServidor}`)
+    if (nomeProcesso == undefined) {
+        res.status(400).send("O nomeProcesso está undefined!");
+    } else if (fkServidor == undefined) {
+        res.status(400).send("O fkServidor está undefined!");
+    } else {
+        processosModel.proibirProcesso(nomeProcesso, fkServidor).then(function (resposta) {
+            res.json(resposta);
+        }).catch(
+            function (erro) {
+                console.log(erro);
+                console.log("\nHouve um erro ao proibir o processo! Erro: ", erro.sqlMessage);
+                res.status(500).json(erro.sqlMessage);
+            }
+        );
+
+    }
+
+}
+
+function obterProcessos(req, res) {
+    var horarioInicio = req.params.horarioInicio;
+    var horarioFim = req.params.horarioFim;
+    var mac = req.params.mac;
+  
+    if (horarioFim == 'undefined') {
+      horarioFim = horarioInicio;
+    }
+  
+    console.log("Obtendo processos entre " + horarioInicio + " e " + horarioFim);
+  
+    processosModel.obterProcessos(horarioInicio, horarioFim, mac).then(function (resultado) {
+        if (resultado.length > 0) {
+            res.status(200).json(resultado);
+        } else {
+            res.status(204).send("Nenhum resultado encontrado!")
+        }
+    }).catch(function (erro) {
+      console.log(erro);
+      console.log("\nHouve um erro ao coletar as medidas! Erro: ", erro.sqlMessage);
+      res.status(500).json(erro.sqlMessage);
+    });
+  }
+
 module.exports = {
     receberDadosProcessos,
-    deletarProcesso
+    deletarProcesso,
+    proibirProcesso,
+    obterProcessos
 }

@@ -18,6 +18,7 @@ function medidasCardsTempoReal(idMaquina, metrica, nomeComponente, nomeMetrica, 
         WHERE metrica.nomeComponente = '${nomeComponente}'
         AND metrica.nomeMetrica = '${nomeMetrica}'
         AND fkServidor = '${idMaquina}'
+        AND horario >= DATEADD(MINUTE , -3, DATEADD(HOUR , -3, GETDATE()))
         ORDER BY horario DESC;`;
         console.log("Executando a instrução SQL: \n" + instrucao);
     }
@@ -42,11 +43,22 @@ function getTodasAsMediasPorMes(idTorre, idServidor, idComponente, idMetrica, me
     return database.executar(instrucao);
 }
 
+function pegarDadosGrafico(mac){
+    var instrucao = `SELECT fk_metrica as metrica, MIN(horario) as horario, valor_leitura as valor FROM fact_historico_leitura
+	WHERE fk_servidor = '${mac}'
+	AND (fk_metrica = 5 or fk_metrica = 4)
+	GROUP BY valor_leitura, fk_metrica
+	ORDER BY MIN(horario), valor_leitura DESC;`;
+    console.log("Executando a instrução SQL: \n" + instrucao);
+    return database.executar(instrucao);
+}
+
 
 module.exports = {
     getComponentesServidor,
     medidasCardsTempoReal,
     medidasGraficoTempoReal,
     getDadosAnalytics,
-    getTodasAsMediasPorMes
+    getTodasAsMediasPorMes,
+    pegarDadosGrafico
 };

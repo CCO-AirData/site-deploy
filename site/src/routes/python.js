@@ -1,10 +1,11 @@
 var express = require("express");
 var router = express.Router();
 
+var pythonController = require("../controllers/pythonController");
 
-// router.post("/", function (req, res) {
-//     pythonController.predict(req, res);
-// })
-
+router.post("/graficoR", function (req, res) {
+    console.log("To na rota")
+    pythonController.iniciar(req, res);
+});
 
 module.exports = router;

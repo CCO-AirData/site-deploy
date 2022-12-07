@@ -42,6 +42,7 @@ CREATE TABLE torre (
 CREATE TABLE servidor (
 	idServidor VARCHAR(17) PRIMARY KEY,
     fkTorre INT NOT NULL,
+    apelido VARCHAR(20),
     FOREIGN KEY(fkTorre) REFERENCES torre(idTorre)
 );
 
@@ -91,6 +92,35 @@ CREATE TABLE parametro (
     FOREIGN KEY(fkMetrica) REFERENCES metrica(idMetrica),
     FOREIGN KEY(fkComponente_idComponente, fkComponente_fkServidor) REFERENCES componente(idComponente, fkServidor)
 );
+
+CREATE TABLE processos(
+    idProcesso INT PRIMARY KEY IDENTITY(1,1),
+    nome VARCHAR(50),
+    porcentagemCpu DECIMAL(5,2),
+    pid VARCHAR(10),
+    usuario VARCHAR(50),
+    fkServidor VARCHAR(17) NOT NULL,
+    horario DATETIME,
+    FOREIGN KEY (fkServidor) REFERENCES servidor(idServidor)
+);
+
+CREATE TABLE deletarPid(
+    id INT PRIMARY KEY IDENTITY(1,1),
+    pid VARCHAR(10)
+);
+
+CREATE TABLE logQrCode (
+	idQrCodeAccess INT PRIMARY KEY IDENTITY(1,1) NOT NULL,
+	fkUsuario INT NOT NULL,
+	fkMaquina VARCHAR(17) NOT NULL,
+	momentoAcesso DATETIME NOT NULL,
+	foiNotificado BIT NOT NULL,
+	FOREIGN KEY (fkMaquina) REFERENCES servidor(idServidor),
+	FOREIGN KEY (fkUsuario) REFERENCES usuario(idUsuario)
+);
+
+
+-- VIEWS ---
 
 CREATE VIEW vw_iniciarSessao AS
 SELECT idUsuario, nomeUsuario, emailUsuario, senhaUsuario, tipoUsuario, idTorre, torre.fkAeroporto, nomeEmpresa, nomeAeroporto, fkGestor, fkSupervisor
@@ -204,4 +234,5 @@ GROUP BY MONTH(l.horario), t.idTorre, l.fkComponente_fkServidor, l.fkComponente_
 INSERT INTO metrica VALUES (1, 'CPU', 'Porcentagem de uso', 'cpuPercent', 'psutil.cpu_percent(interval=0.1)', '%', 0);
 INSERT INTO metrica VALUES (2, 'RAM', 'Porcentagem de uso', 'ramPercent', 'psutil.virtual_memory().percent', '%', 0);
 INSERT INTO metrica VALUES (3, 'DISCO', 'Porcentagem de uso', 'diskPercent', 'psutil.disk_usage("/").percent', '%', 0);
-INSERT INTO metrica VALUES (4, 'CPU', 'Temperatura', 'cpuTemp', 'psutil.sensors_temperatures()', '°C', 0);
+INSERT INTO metrica VALUES (4, 'CPU', 'Temperatura', 'cpuTemp', 'psutil.sensors_temperatures()["coretemp"][0][1]', '°C', 0);
+INSERT INTO metrica VALUES (4, 'CPU', 'Rotação da FAN', 'fanView', 'psutil.sensors_fans()', 'RPM', 0);
